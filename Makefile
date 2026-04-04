@@ -82,16 +82,16 @@ visualization-infrastructure-down:
 	docker-compose -f infrastructure/visualization.docker-compose.yml down
 
 streams-infrastructure-up:
-	docker-compose -f infrastructure/streams.docker-compose.yml up -d
+	docker-compose -f infrastructure/streams/streams.docker-compose.yml up -d
 
 streams-infrastructure-down:
-	docker-compose -f infrastructure/streams.docker-compose.yml down
+	docker-compose -f infrastructure/streams/streams.docker-compose.yml down
 
-spark-cluster-up:
-	docker-compose -f infrastructure/spark/docker-compose.yml up -d
+etl-infrastructure-up:
+	docker-compose -f infrastructure/etl/docker-compose.yml up -d
 
-spark-cluster-down:
-	docker-compose -f infrastructure/spark/docker-compose.yml stop
+etl-infrastructure-down:
+	docker-compose -f infrastructure/etl/docker-compose.yml down
 
 airflow-up:
 	docker-compose -f infrastructure/airflow/docker-compose.yml up -d
@@ -99,5 +99,5 @@ airflow-up:
 airflow-down:
 	docker-compose -f infrastructure/airflow/docker-compose.yml down
 
-up: visualization-infrastructure-up streams-infrastructure-up spark-cluster-up airflow-up
-down: visualization-infrastructure-down streams-infrastructure-down spark-cluster-down airflow-down
+up: visualization-infrastructure-up streams-infrastructure-up etl-infrastructure-up airflow-up
+down: visualization-infrastructure-down streams-infrastructure-down etl-infrastructure-down airflow-down

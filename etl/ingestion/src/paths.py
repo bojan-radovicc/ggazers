@@ -1,13 +1,5 @@
-from pathlib import Path
-
-ROOT_PATH = Path(__file__).absolute().parent.parent
-
-DATA_PATH = ROOT_PATH.parent.parent / "data"
-
-BRONZE_DATA_PATH = DATA_PATH / "bronze"
-
-GITHUB_EVENTS_PATH = BRONZE_DATA_PATH / "github_events"
-
-ACTORS_PATH = BRONZE_DATA_PATH / "actors"
-
-REPOS_PATH = BRONZE_DATA_PATH / "repos"
+DATA_ROOT = "/data"
+BRONZE_DATA_PATH = f"{DATA_ROOT}/bronze"
+GITHUB_EVENTS_PATH = f"{BRONZE_DATA_PATH}/github_events"
+ACTORS_PATH = f"{BRONZE_DATA_PATH}/actors"
+REPOS_PATH = f"{BRONZE_DATA_PATH}/repos"

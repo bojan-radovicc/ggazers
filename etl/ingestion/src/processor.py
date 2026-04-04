@@ -1,12 +1,12 @@
 import logging
-import os
 import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 
-from src.common import add_column, save_jsonl
+from src.common import add_column
 from src.git_clients.gh_archive_client import GHArchiveClient
 from src.git_clients.github_client import GithubClient
+from src.hdfs_client import HDFSClient
 from src.paths import ACTORS_PATH, GITHUB_EVENTS_PATH, REPOS_PATH
 from src.utils import (
     chunk_list,
@@ -19,13 +19,14 @@ logger = logging.getLogger(__name__)
 
 
 class Processor:
-    def __init__(self, gh_archive_client: GHArchiveClient, github_client: GithubClient) -> None:
+    def __init__(
+        self, gh_archive_client: GHArchiveClient, github_client: GithubClient, hdfs_client: HDFSClient
+    ) -> None:
         self.gh_archive_client = gh_archive_client
         self.github_client = github_client
+        self.hdfs_client = hdfs_client
 
-    def _ingest_repos(
-        self, repos: List[str], current_date: datetime, part: int, chunk_size: int, sleep_on_failure: int
-    ) -> List[Dict[Any, Any]]:
+    def _ingest_repos(self, repos: List[str], chunk_size: int, sleep_on_failure: int) -> List[Dict[Any, Any]]:
         for chunk_index, chunk in enumerate(chunk_list(repos, chunk_size)):
             logger.info(f"Processing repo chunk: #{chunk_index}")
             query = self.github_client.build_graphql_query(repos=chunk)
@@ -41,7 +42,7 @@ class Processor:
             return data
 
     def _ingest_actors(
-        self, actors: List[str], current_date: datetime, part: int, chunk_size: int, sleep_on_failure: int
+        self, actors: List[str], chunk_size: int, sleep_on_failure: int
     ) -> List[Dict[Any, Any]]:
         for chunk_index, chunk in enumerate(chunk_list(actors, chunk_size)):
             logger.info(f"Processing actor chunk: #{chunk_index}")
@@ -68,13 +69,13 @@ class Processor:
                 list=data, column_name="ingested_at", value=int(datetime.now(timezone.utc).timestamp())
             )
             filename = generate_file_name(current_date, part)
-            filepath = os.path.join(GITHUB_EVENTS_PATH, current_date.strftime("%Y_%m_%d"), filename)
-            save_jsonl(data, filepath)
+            filepath = f"{GITHUB_EVENTS_PATH}/{current_date.strftime('%Y_%m_%d')}/{filename}"
+            self.hdfs_client.write_jsonl(data, filepath)
 
             repos, actors = extract_repos_and_actors(data)
             logger.info(f"Extracted {len(repos)} unique repos and {len(actors)} unique actors.")
 
-            repos = self._ingest_repos(repos, current_date, part, chunk_size, sleep_on_failure)
+            repos = self._ingest_repos(repos, chunk_size, sleep_on_failure)
             repos = add_column(
                 list=repos,
                 column_name="ingested_at",
@@ -82,10 +83,10 @@ class Processor:
             )
 
             filename = generate_file_name(current_date, part)
-            filepath = os.path.join(REPOS_PATH, current_date.strftime("%Y_%m_%d"), filename)
-            save_jsonl(repos, filepath)
+            filepath = f"{REPOS_PATH}/{current_date.strftime('%Y_%m_%d')}/{filename}"
+            self.hdfs_client.write_jsonl(repos, filepath)
 
-            actors = self._ingest_actors(actors, current_date, part, chunk_size, sleep_on_failure)
+            actors = self._ingest_actors(actors, chunk_size, sleep_on_failure)
             actors = add_column(
                 list=actors,
                 column_name="ingested_at",
@@ -93,5 +94,5 @@ class Processor:
             )
 
             filename = generate_file_name(current_date, part)
-            filepath = os.path.join(ACTORS_PATH, current_date.strftime("%Y_%m_%d"), filename)
-            save_jsonl(actors, filepath)
+            filepath = f"{ACTORS_PATH}/{current_date.strftime('%Y_%m_%d')}/{filename}"
+            self.hdfs_client.write_jsonl(actors, filepath)

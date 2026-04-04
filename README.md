@@ -62,7 +62,7 @@ The platform follows the Lambda Architecture pattern and consists of the followi
 *Diagram-1* and *Diagram-2* illustrate the overall system architecture of the platform, including the batch and stream processing pipelines.
 
 ### Batch Processing Layer
-[![Batch Processing Layer](docs/ggazer_batch_solution_a.svg)](docs/ggazer_batch_solution_a.svg)
+[![Batch Processing Layer](docs/ggazers_solution_batch_a.svg)](docs/ggazers_solution_batch_a.svg)
 <p align="center"> <i>Diagram-1</i></p>
 
 

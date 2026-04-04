@@ -1,7 +1,11 @@
-from pathlib import Path
+HDFS_HOST = "namenode"
+HDFS_PORT = 9000
+DATA_PATH = f"hdfs://{HDFS_HOST}:{HDFS_PORT}/data"
 
-ROOT_PATH = Path(__file__).absolute().parent.parent
+SILVER_DATA_PATH = f"{DATA_PATH}/silver"
 
-DATA_PATH = ROOT_PATH.parent.parent / "data"
+ACTORS_PATH = f"{SILVER_DATA_PATH}/actors"
 
-SILVER_DATA_PATH = DATA_PATH / "silver"
+REPOS_PATH = f"{SILVER_DATA_PATH}/repos"
+
+GITHUB_EVENTS_PATH = f"{SILVER_DATA_PATH}/github_events"

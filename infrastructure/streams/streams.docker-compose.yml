@@ -61,11 +61,11 @@ services:
 
   ggazers-producer:
     build:
-      context: ../stream-processing/producer
+      context: ../../stream-processing/producer
       dockerfile: Dockerfile
     command: "bash -c 'echo Waiting for Kafka to be ready... && until nc -z schema-registry 8081; do sleep 1; done && python3 src/runner.py'"
     env_file:
-      - ../stream-processing/producer/src/.env
+      - ../../stream-processing/producer/src/.env
     depends_on:
       - broker
       - schema-registry
@@ -74,7 +74,7 @@ services:
 
   ggazers-analyzer:
     build:
-      context: ../stream-processing/analyzer
+      context: ../../stream-processing/analyzer
       dockerfile: Dockerfile
     command: "bash -c 'echo Waiting for Kafka to be ready... && until nc -z schema-registry 8081; do sleep 1; done  && java -jar target/scala-2.13/ggazers-0.1.0-SNAPSHOT.jar'"
     depends_on:
@@ -86,33 +86,31 @@ services:
 
   ggazers-repokpi-connect:
     build:
-      context: ../stream-processing/connect
+      context: ../../stream-processing/connect
       dockerfile: Dockerfile
-    command: bash -c 'echo Waiting for Kafka to be ready... && until nc -z schema-registry 8081; do sleep 1; done  && python3 runner.py --dataset repo_kpi'
+    command: bash -c 'echo Waiting for Kafka to be ready... && until nc -z schema-registry 8081; do sleep 1; done  && python3 -m src.runner --dataset repo_kpi'
     depends_on:
       - broker
       - schema-registry
       - ggazers-producer
       - ggazers-analyzer
+    restart: on-failure
     networks:
       - ggazers_nw
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
 
   ggazers-actorkpi-connect:
     build:
-      context: ../stream-processing/connect
+      context: ../../stream-processing/connect
       dockerfile: Dockerfile
-    command: bash -c 'echo Waiting for Kafka to be ready... && until nc -z schema-registry 8081; do sleep 1; done  && python3 runner.py --dataset actor_kpi'
+    command: bash -c 'echo Waiting for Kafka to be ready... && until nc -z schema-registry 8081; do sleep 1; done  && python3 -m src.runner --dataset actor_kpi'
     depends_on:
       - broker
       - schema-registry
       - ggazers-producer
       - ggazers-analyzer
+    restart: on-failure
     networks:
       - ggazers_nw
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
 
 networks:
   ggazers_nw:

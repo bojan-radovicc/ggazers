@@ -1,4 +1,3 @@
-import os
 from datetime import date, timedelta
 from typing import List
 
@@ -20,10 +19,6 @@ def build_paths(start_date: date, end_date: date, dataset: str, parts_per_date: 
     current_date = start_date
     while current_date <= end_date:
         date_str = f"{current_date.year}_{current_date.month:02d}_{current_date.day:02d}"
-        dir_path = f"{base_path}/{date_str}"
-        if os.path.exists(dir_path):
-            for fname in os.listdir(dir_path):
-                if fname.endswith(".jsonl"):
-                    paths.append(f"{dir_path}/{fname}")
+        paths.append(f"{base_path}/{date_str}/*.jsonl")
         current_date += timedelta(days=1)
     return paths

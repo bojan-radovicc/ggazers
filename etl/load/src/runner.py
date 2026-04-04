@@ -1,4 +1,6 @@
+import calendar
 import logging
+from datetime import date, datetime, timezone
 
 import click
 from src.processor import Processor
@@ -9,8 +11,20 @@ processor = Processor()
 
 
 @click.command()
-@click.option("--period_start_date", help="The start date for the period in YYYY-MM-DD format.")
-@click.option("--period_end_date", help="The end date for the period in YYYY-MM-DD format.")
+@click.option(
+    "--period_start_date",
+    help="The start date for the period in YYYY-MM-DD format.",
+    default=date(datetime.now().year, datetime.now(timezone.utc).month, 1),
+)
+@click.option(
+    "--period_end_date",
+    help="The end date for the period in YYYY-MM-DD format.",
+    default=date(
+        datetime.now().year,
+        datetime.now(timezone.utc).month,
+        calendar.monthrange(datetime.now().year, datetime.now(timezone.utc).month)[1],
+    ),
+)
 @click.option(
     "--dataset",
     required=True,

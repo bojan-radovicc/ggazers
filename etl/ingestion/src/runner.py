@@ -6,6 +6,7 @@ import click
 import dotenv
 from src.git_clients.gh_archive_client import GHArchiveClient
 from src.git_clients.github_client import GithubClient
+from src.hdfs_client import HDFSClient
 from src.processor import Processor
 
 SLEEP_ON_FAILURE = 4 * 60 * 60  # 4 hours
@@ -14,7 +15,8 @@ dotenv.load_dotenv()
 logger = logging.getLogger(__name__)
 gh_archive_client = GHArchiveClient()
 github_client = GithubClient()
-processor = Processor(gh_archive_client, github_client)
+hdfs_client = HDFSClient()
+processor = Processor(gh_archive_client, github_client, hdfs_client)
 
 
 @click.command()

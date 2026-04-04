@@ -1,17 +1,13 @@
-from pathlib import Path
+HDFS_HOST = "namenode"
+HDFS_PORT = 9000
+DATA_PATH = f"hdfs://{HDFS_HOST}:{HDFS_PORT}/data"
 
-ROOT_PATH = Path(__file__).absolute().parent.parent
+BRONZE_DATA_PATH = f"{DATA_PATH}/bronze"
 
-DATA_PATH = ROOT_PATH.parent.parent / "data"
+ACTORS_PATH = f"{BRONZE_DATA_PATH}/actors"
 
-BRONZE_DATA_PATH = DATA_PATH / "bronze"
+REPOS_PATH = f"{BRONZE_DATA_PATH}/repos"
 
-GITHUB_EVENTS_PATH = BRONZE_DATA_PATH / "github_events"
+GITHUB_EVENTS_PATH = f"{BRONZE_DATA_PATH}/github_events"
 
-ACTORS_PATH = BRONZE_DATA_PATH / "actors"
-
-REPOS_PATH = BRONZE_DATA_PATH / "repos"
-
-GITHUB_EVENTS_PATH = BRONZE_DATA_PATH / "github_events"
-
-SILVER_PATH = DATA_PATH / "silver"
+SILVER_PATH = f"{DATA_PATH}/silver"

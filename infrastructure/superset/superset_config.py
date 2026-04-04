@@ -15,6 +15,8 @@ SECRET_KEY = os.getenv(
     "AsAd@$#afgt4567!"
 )
 
+PREVIOUS_SECRET_KEY = os.getenv("SUPERSET_PREVIOUS_SECRET_KEY") or None
+
 # ------------------------------------------------------------------------------
 # Metadata database
 # ------------------------------------------------------------------------------

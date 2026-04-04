@@ -43,6 +43,7 @@ class Processor:
         repo_level_stats = self.analyzer.calculate_repo_level_stats(period_start_date, period_end_date)
         self._write_to_postgres(repo_level_stats, table_name="repo_level_stats")
 
+        repo_level_stats.show(5)
         logger.info("Repo level stats written to DB.")
         return repo_level_stats
 
@@ -64,13 +65,13 @@ class Processor:
         self,
         df: DataFrame,
         table_name: str,
-        jdbc_url: str = os.getenv("JDBC_URL", "jdbc:postgresql://localhost:5432/ggazers"),
+        jdbc_url: str = os.getenv("JDBC_URL", "jdbc:postgresql://ggazers-postgres:5432/ggazers"),
         properties: Dict[str, str] = {
             "user": os.getenv("GGAZERS_USER", "ggazers"),
             "password": os.getenv("GGAZERS_PASSWORD", "ggazers123"),
             "driver": "org.postgresql.Driver",
         },
-        mode: str = "overwrite",
+        mode: str = "append",
     ) -> None:
         """
         Write DataFrame to PostgreSQL table.

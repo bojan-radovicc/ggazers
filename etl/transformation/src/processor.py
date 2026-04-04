@@ -3,7 +3,7 @@ from datetime import date
 from typing import List
 
 from pyspark.sql import DataFrame, SparkSession
-from src.paths import DATA_PATH
+from src.paths import DATA_PATH, HDFS_HOST, HDFS_PORT
 from src.schema import ACTORS_SCHEMA, GITHUB_EVENTS_SCHEMA, REPOS_SCHEMA
 from src.transformer import Transformer
 from src.utils import build_paths
@@ -29,6 +29,7 @@ class Processor:
             .config("spark.sql.catalog.ggazers", "org.apache.iceberg.spark.SparkCatalog")
             .config("spark.sql.catalog.ggazers.type", "hadoop")
             .config("spark.sql.catalog.ggazers.warehouse", DATA_PATH)
+            .config("spark.hadoop.fs.defaultFS", f"hdfs://{HDFS_HOST}:{HDFS_PORT}")
             .getOrCreate()
         )
 
