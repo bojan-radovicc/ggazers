@@ -10,10 +10,7 @@ DISPLAY_MAX_ROW = 40000  # Adjust this value as needed
 # Set the default query limit
 DEFAULT_SQLLAB_LIMIT = 40000
 
-SECRET_KEY = os.getenv(
-    "SUPERSET_SECRET_KEY",
-    "AsAd@$#afgt4567!"
-)
+SECRET_KEY = os.environ["SUPERSET_SECRET_KEY"]
 
 PREVIOUS_SECRET_KEY = os.getenv("SUPERSET_PREVIOUS_SECRET_KEY") or None
 

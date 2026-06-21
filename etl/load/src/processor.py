@@ -17,7 +17,10 @@ class Processor:
     def init_spark_session(self) -> None:
         self.spark_session: SparkSession = (
             SparkSession.builder.appName("transformation")
+            .master("local[*]")
             .config("spark.sql.session.timeZone", "UTC")
+            .config("spark.driver.host", "127.0.0.1")
+            .config("spark.driver.bindAddress", "127.0.0.1")
             .config(
                 "spark.jars.packages",
                 "org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.6.0," "org.postgresql:postgresql:42.6.0",
@@ -28,16 +31,17 @@ class Processor:
             .config("spark.sql.catalog.ggazers", "org.apache.iceberg.spark.SparkCatalog")
             .config("spark.sql.catalog.ggazers.type", "hadoop")
             .config("spark.sql.catalog.ggazers.warehouse", DATA_PATH)
-            .config("spark.driver.memory", "4g")
-            .config("spark.executor.memory", "4g")
-            .config("spark.driver.maxResultSize", "2g")
-            .config("spark.sql.shuffle.partitions", "200")
+            .config("spark.driver.memory", "14g")
+            .config("spark.executor.memory", "14g")
+            .config("spark.driver.maxResultSize", "14g")
+            .config("spark.sql.shuffle.partitions", "3")
             .getOrCreate()
         )
         self.analyzer = Analyzer(self.spark_session)
 
     def terminate_spark_session(self) -> None:
-        self.spark_session.stop()
+        if self.spark_session is not None:
+            self.spark_session.stop()
 
     def calculate_repo_level_stats(self, period_start_date: str, period_end_date: str) -> DataFrame:
         repo_level_stats = self.analyzer.calculate_repo_level_stats(period_start_date, period_end_date)

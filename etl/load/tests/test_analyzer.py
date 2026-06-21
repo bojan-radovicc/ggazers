@@ -20,6 +20,8 @@ class AnalyzerTests(unittest.TestCase):
             .appName("AnalyzerTest")
             .config("spark.ui.enabled", "false")
             .config("spark.ui.showConsoleProgress", "false")
+            .config("spark.driver.host", "127.0.0.1")
+            .config("spark.driver.bindAddress", "127.0.0.1")
             .config("spark.sql.warehouse.dir", str(cls.warehouse_path))
             .config("spark.sql.catalog.ggazers", "org.apache.iceberg.spark.SparkCatalog")
             .config("spark.sql.catalog.ggazers.type", "hadoop")
@@ -437,6 +439,20 @@ class AnalyzerTests(unittest.TestCase):
         """
         )
 
+        self.spark.sql(
+            """
+            INSERT INTO ggazers.silver.fact_watch_events VALUES
+            (
+                'WatchEvent', CAST('2025-11-01 13:00:00' AS TIMESTAMP),
+                'user2', 'user1/project-a'
+            ),
+            (
+                'WatchEvent', CAST('2025-11-02 13:00:00' AS TIMESTAMP),
+                'user3', 'user1/project-b'
+            )
+        """
+        )
+
         result_df = self.analyzer.calculate_user_level_stats("2025-11-01", "2025-11-03")
         results = result_df.collect()
 
@@ -454,6 +470,7 @@ class AnalyzerTests(unittest.TestCase):
         self.assertEqual(user1.commits_count, 2)
         self.assertEqual(user1.opened_pull_requests_count, 1)
         self.assertEqual(user1.longest_coding_session_seconds, 7200)
+        self.assertEqual(user1.new_stargazers_count, 2)
         self.assertGreater(user1.ggazers_score, 0)
         self.assertIn(user1.activity_label, ["Highly Active", "Active", "Moderate", "Low", "Inactive"])
 
@@ -462,6 +479,7 @@ class AnalyzerTests(unittest.TestCase):
         self.assertEqual(user2.tags_count, 0)
         self.assertEqual(user2.coding_sessions_count, 0)
         self.assertEqual(user2.commits_count, 1)
+        self.assertEqual(user2.new_stargazers_count, 0)
 
     def test_calculate_org_level_stats(self) -> None:
         """Test the calculate_org_level_stats method."""

@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS org_level_stats (
     most_active_repo VARCHAR(500) DEFAULT 'N/A',
     most_active_repo_activity_count BIGINT DEFAULT 0,
     commits_count BIGINT DEFAULT 0,
+    actions_events_count BIGINT DEFAULT 0,
+    copilot_events_count BIGINT DEFAULT 0,
     most_active_member VARCHAR(255) DEFAULT 'N/A',
     most_active_member_activity_count BIGINT DEFAULT 0,
     new_stargazers_count BIGINT DEFAULT 0,

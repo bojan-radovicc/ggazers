@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS user_level_stats (
     most_commited_organization VARCHAR(255) DEFAULT 'N/A',
     longest_coding_session_seconds BIGINT,
     opened_pull_requests_count BIGINT DEFAULT 0,
+    new_stargazers_count BIGINT DEFAULT 0,
     ggazers_score NUMERIC(10, 2) DEFAULT 0.0,
     activity_label VARCHAR(50) DEFAULT 'Inactive',
     ggazer_rank BIGINT DEFAULT 0,

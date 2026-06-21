@@ -22,6 +22,8 @@ def spark_session() -> Generator[SparkSession, None, None]:
         .appName("TestSession")
         .config("spark.ui.enabled", "false")
         .config("spark.ui.showConsoleProgress", "false")
+        .config("spark.driver.host", "127.0.0.1")
+        .config("spark.driver.bindAddress", "127.0.0.1")
         .config("spark.sql.warehouse.dir", str(warehouse_path))
         .config("spark.sql.catalog.ggazers", "org.apache.iceberg.spark.SparkCatalog")
         .config("spark.sql.catalog.ggazers.type", "hadoop")

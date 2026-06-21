@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS repo_level_stats (
     opened_pull_requests_count INTEGER DEFAULT 0,
     closed_pull_requests_count INTEGER DEFAULT 0,
     most_pull_request_actor VARCHAR(255),
+    actions_events_count INTEGER DEFAULT 0,
+    copilot_events_count INTEGER DEFAULT 0,
     period_stargazers_count INTEGER DEFAULT 0,
     ggazer_score DOUBLE PRECISION DEFAULT 0.0,
     activity_label VARCHAR(50),

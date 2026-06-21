@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: ggazers-postgres
+    env_file:
+      - ./superset/.env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-ggazers}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ggazers123}
@@ -43,8 +45,8 @@ services:
       bash -c "
       pip install psycopg2-binary &&
       superset db upgrade &&
-      if [ -n \"${SUPERSET_PREVIOUS_SECRET_KEY:-}\" ]; then superset re-encrypt-secrets; fi &&
-      if ! superset fab list-users | grep -q \"${SUPERSET_ADMIN_USER:-admin}\"; then superset fab create-admin --username ${SUPERSET_ADMIN_USER:-admin} --firstname ${SUPERSET_ADMIN_FIRSTNAME:-Admin} --lastname ${SUPERSET_ADMIN_LASTNAME:-User} --email ${SUPERSET_ADMIN_EMAIL:-admin@superset.com} --password ${SUPERSET_ADMIN_PASSWORD:-admin}; fi &&
+      if [ -n \"$$SUPERSET_PREVIOUS_SECRET_KEY\" ]; then superset re-encrypt-secrets; fi &&
+      superset fab create-admin --username ${SUPERSET_ADMIN_USER:-admin} --firstname ${SUPERSET_ADMIN_FIRSTNAME:-Admin} --lastname ${SUPERSET_ADMIN_LASTNAME:-User} --email ${SUPERSET_ADMIN_EMAIL:-admin@superset.com} --password ${SUPERSET_ADMIN_PASSWORD:-admin} &&
       superset init &&
       superset run -h 0.0.0.0 -p 8088
       "

@@ -37,7 +37,8 @@ class Analyzer:
                         FROM
                             ggazers.silver.fact_push_events
                         WHERE
-                            created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                            created_at >= DATE('{period_start_date}') AND
+                            created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                         UNION
                             SELECT
                                 repo_name,
@@ -45,7 +46,8 @@ class Analyzer:
                             FROM
                                 ggazers.silver.fact_pull_request_events
                             WHERE
-                                created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                                created_at >= DATE('{period_start_date}') AND
+                                created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     )
                     GROUP BY repo_name
                 ),
@@ -57,7 +59,8 @@ class Analyzer:
                         ggazers.silver.dim_coding_session
                     LATERAL VIEW explode(split(repos, ',')) AS exploded_repo
                     WHERE
-                        session_start BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        session_start >= DATE('{period_start_date}') AND
+                        session_start < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         exploded_repo
                 ),
@@ -75,7 +78,8 @@ class Analyzer:
                         FROM
                             ggazers.silver.fact_commit_comment_events ie
                         WHERE
-                            created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                            created_at >= DATE('{period_start_date}') AND
+                            created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                         GROUP BY
                             ie.repo_name, ie.actor_login
                     )
@@ -89,7 +93,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_push_events pe
                     WHERE
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pe.repo_name
                 ),
@@ -105,7 +110,8 @@ class Analyzer:
                         pe.actor_login = dim_actor.login
                     WHERE
                         dim_actor.company IS NOT NULL AND
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pe.repo_name
                     ORDER BY
@@ -119,7 +125,8 @@ class Analyzer:
                         ggazers.silver.fact_create_events ce
                     WHERE
                         ce.ref_type = 'branch' AND
-                        ce.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        ce.created_at >= DATE('{period_start_date}') AND
+                        ce.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         ce.repo_name
                 ),
@@ -131,7 +138,8 @@ class Analyzer:
                         ggazers.silver.fact_create_events ce
                     WHERE
                         ce.ref_type = 'tag' AND
-                        ce.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        ce.created_at >= DATE('{period_start_date}') AND
+                        ce.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         ce.repo_name
                 ),
@@ -162,8 +170,8 @@ class Analyzer:
                         FROM ggazers.silver.fact_issue_events ie
                         WHERE
                             ie.action IN ('opened', 'closed')
-                            AND ie.created_at BETWEEN DATE('{period_start_date}')
-                                                AND DATE('{period_end_date}')
+                            AND ie.created_at >= DATE('{period_start_date}')
+                            AND ie.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                         GROUP BY ie.repo_name
                     ) t
                 ),
@@ -215,7 +223,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_fork_events ff
                     WHERE
-                        ff.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        ff.created_at >= DATE('{period_start_date}') AND
+                        ff.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         ff.repo_name
                 ),
@@ -230,7 +239,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_gollum_events pe
                     WHERE
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         repo_name
                 ),
@@ -241,7 +251,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_member_events me
                     WHERE
-                        me.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        me.created_at >= DATE('{period_start_date}') AND
+                        me.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         me.repo_name
                 ),
@@ -269,7 +280,8 @@ class Analyzer:
                             ggazers.silver.fact_pull_request_events pre
                         WHERE
                             pre.action IN ('opened', 'closed')  AND
-                            pre.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                         GROUP BY
                             pre.repo_name, pre.action
                     )
@@ -285,7 +297,8 @@ class Analyzer:
                         ggazers.silver.fact_pull_request_events pre
                     WHERE
                         pre.action = 'opened' AND
-                        pre.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pre.created_at >= DATE('{period_start_date}') AND
+                        pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pre.actor_login, pre.repo_name
                 ),
@@ -296,9 +309,66 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_watch_events se
                     WHERE
-                        se.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        se.created_at >= DATE('{period_start_date}') AND
+                        se.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         se.repo_name
+                ),
+                actions_events_num AS (
+                    SELECT
+                        repo_name,
+                        COUNT(*) AS actions_events_count
+                    FROM (
+                        SELECT
+                            pe.repo_name,
+                            pe.actor_login
+                        FROM
+                            ggazers.silver.fact_push_events pe
+                        WHERE
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        UNION ALL
+                        SELECT
+                            pre.repo_name,
+                            pre.actor_login
+                        FROM
+                            ggazers.silver.fact_pull_request_events pre
+                        WHERE
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    WHERE
+                        LOWER(actor_login) LIKE '%actions%'
+                    GROUP BY
+                        repo_name
+                ),
+                copilot_events_num AS (
+                    SELECT
+                        repo_name,
+                        COUNT(*) AS copilot_events_count
+                    FROM (
+                        SELECT
+                            pe.repo_name,
+                            pe.actor_login
+                        FROM
+                            ggazers.silver.fact_push_events pe
+                        WHERE
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        UNION ALL
+                        SELECT
+                            pre.repo_name,
+                            pre.actor_login
+                        FROM
+                            ggazers.silver.fact_pull_request_events pre
+                        WHERE
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    WHERE
+                        LOWER(actor_login) LIKE '%copilot%'
+                    GROUP BY
+                        repo_name
                 ),
                 ggazer_score AS (
                     SELECT
@@ -371,6 +441,8 @@ class Analyzer:
                     COALESCE(prs.opened_pull_requests_count, 0) AS opened_pull_requests_count,
                     COALESCE(prs.closed_pull_requests_count, 0) AS closed_pull_requests_count,
                     COALESCE(mpra.actor_login, 'N/A') AS most_pull_request_actor,
+                    COALESCE(aen.actions_events_count, 0) AS actions_events_count,
+                    COALESCE(copen.copilot_events_count, 0) AS copilot_events_count,
                     COALESCE(sn.stargazers_count, 0) AS period_stargazers_count,
                     COALESCE(gs.ggazer_score, 0.0) AS ggazer_score,
                     COALESCE(gr.activity_label, 'Inactive') AS activity_label,
@@ -438,6 +510,14 @@ class Analyzer:
                 ON
                     ri.name_with_owner = mpra.repo_name
                 LEFT JOIN
+                    actions_events_num aen
+                ON
+                    ri.name_with_owner = aen.repo_name
+                LEFT JOIN
+                    copilot_events_num copen
+                ON
+                    ri.name_with_owner = copen.repo_name
+                LEFT JOIN
                     stargazers_num sn
                 ON
                     ri.name_with_owner = sn.repo_name
@@ -483,7 +563,8 @@ class Analyzer:
                         ggazers.silver.fact_create_events pe
                     WHERE
                         pe.ref_type = 'branch' AND
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pe.actor_login
                 ),
@@ -495,7 +576,8 @@ class Analyzer:
                         ggazers.silver.fact_create_events pe
                     WHERE
                         pe.ref_type = 'tag' AND
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pe.actor_login
                 ),
@@ -506,7 +588,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.dim_coding_session cs
                     WHERE
-                        cs.session_start BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        cs.session_start >= DATE('{period_start_date}') AND
+                        cs.session_start < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         cs.actor_login
                 ),
@@ -525,7 +608,8 @@ class Analyzer:
                             ggazers.silver.dim_coding_session
                         LATERAL VIEW explode(split(repos, ',')) AS exploded_repo
                         WHERE
-                            session_start BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                            session_start >= DATE('{period_start_date}') AND
+                            session_start < DATE_ADD(DATE('{period_end_date}'), 1)
                         GROUP BY
                             actor_login, exploded_repo
                     )
@@ -539,7 +623,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_push_events pe
                     WHERE
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pe.actor_login
                 ),
@@ -581,7 +666,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.dim_coding_session cs
                     WHERE
-                        cs.session_start BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        cs.session_start >= DATE('{period_start_date}') AND
+                        cs.session_start < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         cs.actor_login
                 ),
@@ -593,9 +679,67 @@ class Analyzer:
                         ggazers.silver.fact_pull_request_events pre
                     WHERE
                         pre.action = 'opened' AND
-                        pre.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pre.created_at >= DATE('{period_start_date}') AND
+                        pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         pre.actor_login
+                ),
+                new_stargazers_num AS (
+                    SELECT
+                        split(se.repo_name, '/')[0] AS actor_login,
+                        COUNT(*) AS new_stargazers_count
+                    FROM
+                        ggazers.silver.fact_watch_events se
+                    WHERE
+                        se.created_at >= DATE('{period_start_date}') AND
+                        se.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    GROUP BY
+                        split(se.repo_name, '/')[0]
+                ),
+                repo_contributions_num AS (
+                    SELECT
+                        actor_login,
+                        repo_name,
+                        COUNT(*) AS contributions_count
+                    FROM (
+                        SELECT
+                            pe.actor_login,
+                            pe.repo_name
+                        FROM
+                            ggazers.silver.fact_push_events pe
+                        WHERE
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        UNION ALL
+                        SELECT
+                            pre.actor_login,
+                            pre.repo_name
+                        FROM
+                            ggazers.silver.fact_pull_request_events pre
+                        WHERE
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    GROUP BY
+                        actor_login, repo_name
+                ),
+                starred_repo_contribution_score AS (
+                    SELECT
+                        rcn.actor_login,
+                        ROUND(
+                            SUM(
+                                rcn.contributions_count * LOG(1 + COALESCE(dr.stargazers_count, 0))
+                            ),
+                            2
+                        ) AS starred_contribution_score
+                    FROM
+                        repo_contributions_num rcn
+                    LEFT JOIN
+                        ggazers.silver.dim_repo dr
+                    ON
+                        rcn.repo_name = dr.name_with_owner
+                    GROUP BY
+                        rcn.actor_login
                 ),
                 ggazer_score AS (
                     SELECT
@@ -603,9 +747,11 @@ class Analyzer:
                         ROUND(
                             (COALESCE(bn.branches_count, 0) * 2) +
                             (COALESCE(tn.tags_count, 0) * 2) +
-                            (COALESCE(csn.sessions_count, 0) * 3) +
-                            (COALESCE(cn.commit_count, 0) * 5) +
-                            (COALESCE(oprn.opened_pull_requests_count, 0) * 4)
+                            (COALESCE(csn.sessions_count, 0) * 2) +
+                            (COALESCE(cn.commit_count, 0) * 2) +
+                            (COALESCE(oprn.opened_pull_requests_count, 0) * 2) +
+                            (COALESCE(nsn.new_stargazers_count, 0) * 12) +
+                            (COALESCE(srcs.starred_contribution_score, 0) * 15)
                         , 2) AS ggazers_score
                     FROM
                         users_info ui
@@ -614,6 +760,8 @@ class Analyzer:
                     LEFT JOIN coding_sessions_num csn ON ui.login = csn.actor_login
                     LEFT JOIN commits_num cn ON ui.login = cn.actor_login
                     LEFT JOIN opened_pull_requests_num oprn ON ui.login = oprn.actor_login
+                    LEFT JOIN new_stargazers_num nsn ON ui.login = nsn.actor_login
+                    LEFT JOIN starred_repo_contribution_score srcs ON ui.login = srcs.actor_login
                 ),
                 ggazer_rankings AS (
                     SELECT
@@ -643,6 +791,7 @@ class Analyzer:
                     COALESCE(mco.owner, 'N/A') AS most_commited_organization,
                     lcs.longest_session_seconds AS longest_coding_session_seconds,
                     COALESCE(oprn.opened_pull_requests_count, 0) AS opened_pull_requests_count,
+                    COALESCE(nsn.new_stargazers_count, 0) AS new_stargazers_count,
                     COALESCE(gs.ggazers_score, 0.0) AS ggazers_score,
                     COALESCE(gr.activity_label, 'Inactive') AS activity_label,
                     COALESCE(gr.ggazer_rank, 0) AS ggazer_rank
@@ -680,6 +829,10 @@ class Analyzer:
                     opened_pull_requests_num oprn
                 ON
                     ui.login = oprn.actor_login
+                LEFT JOIN
+                    new_stargazers_num nsn
+                ON
+                    ui.login = nsn.actor_login
                 LEFT JOIN
                     ggazer_score gs
                 ON
@@ -732,7 +885,8 @@ class Analyzer:
                             FROM
                                 ggazers.silver.fact_push_events
                             WHERE
-                                created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                                created_at >= DATE('{period_start_date}') AND
+                                created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                             UNION ALL
                             SELECT
                                 split(repo_name, '/')[0] AS repo_owner,
@@ -740,7 +894,8 @@ class Analyzer:
                             FROM
                                 ggazers.silver.fact_pull_request_events
                             WHERE
-                                created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                                created_at >= DATE('{period_start_date}') AND
+                                created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                         )
                         GROUP BY
                             repo_owner, repo_name
@@ -754,34 +909,217 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_push_events pe
                     WHERE
-                        pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         split(pe.repo_name, '/')[0]
                 ),
-                most_active_member AS (
+                committed_repos_and_committers_num AS (
                     SELECT
-                        actor_login,
-                        COUNT(*) AS activity_count
+                        split(pe.repo_name, '/')[0] AS repo_owner,
+                        COUNT(DISTINCT pe.repo_name) AS committed_repos_count,
+                        COUNT(DISTINCT pe.actor_login) AS committers_count
+                    FROM
+                        ggazers.silver.fact_push_events pe
+                    WHERE
+                        pe.created_at >= DATE('{period_start_date}') AND
+                        pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    GROUP BY
+                        split(pe.repo_name, '/')[0]
+                ),
+                automated_actions_num AS (
+                    SELECT
+                        repo_owner,
+                        COUNT(*) AS automated_actions_count
                     FROM (
                         SELECT
+                            split(pe.repo_name, '/')[0] AS repo_owner,
                             pe.actor_login
                         FROM
                             ggazers.silver.fact_push_events pe
                         WHERE
-                            pe.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                         UNION ALL
                         SELECT
+                            split(pre.repo_name, '/')[0] AS repo_owner,
                             pre.actor_login
                         FROM
                             ggazers.silver.fact_pull_request_events pre
                         WHERE
-                            pre.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
-                    )
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    WHERE
+                        LOWER(actor_login) LIKE '%actions%' OR
+                        LOWER(actor_login) LIKE '%[bot]%' OR
+                        LOWER(actor_login) LIKE '%copilot%' OR
+                        LOWER(actor_login) LIKE '%dependabot%' OR
+                        LOWER(actor_login) LIKE '%renovate%' OR
+                        LOWER(actor_login) LIKE '%bot' OR
+                        LOWER(actor_login) LIKE '%gitbox%'
                     GROUP BY
-                        actor_login
-                    ORDER BY
-                        activity_count DESC
-                    LIMIT 1
+                        repo_owner
+                ),
+                actions_events_num AS (
+                    SELECT
+                        repo_owner,
+                        COUNT(*) AS actions_events_count
+                    FROM (
+                        SELECT
+                            split(pe.repo_name, '/')[0] AS repo_owner,
+                            pe.actor_login
+                        FROM
+                            ggazers.silver.fact_push_events pe
+                        WHERE
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        UNION ALL
+                        SELECT
+                            split(pre.repo_name, '/')[0] AS repo_owner,
+                            pre.actor_login
+                        FROM
+                            ggazers.silver.fact_pull_request_events pre
+                        WHERE
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    WHERE
+                        LOWER(actor_login) LIKE '%actions%'
+                    GROUP BY
+                        repo_owner
+                ),
+                copilot_events_num AS (
+                    SELECT
+                        repo_owner,
+                        COUNT(*) AS copilot_events_count
+                    FROM (
+                        SELECT
+                            split(pe.repo_name, '/')[0] AS repo_owner,
+                            pe.actor_login
+                        FROM
+                            ggazers.silver.fact_push_events pe
+                        WHERE
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        UNION ALL
+                        SELECT
+                            split(pre.repo_name, '/')[0] AS repo_owner,
+                            pre.actor_login
+                        FROM
+                            ggazers.silver.fact_pull_request_events pre
+                        WHERE
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    WHERE
+                        LOWER(actor_login) LIKE '%copilot%'
+                    GROUP BY
+                        repo_owner
+                ),
+                total_actions_num AS (
+                    SELECT
+                        repo_owner,
+                        COUNT(*) AS total_actions_count
+                    FROM (
+                        SELECT
+                            split(pe.repo_name, '/')[0] AS repo_owner
+                        FROM
+                            ggazers.silver.fact_push_events pe
+                        WHERE
+                            pe.created_at >= DATE('{period_start_date}') AND
+                            pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        UNION ALL
+                        SELECT
+                            split(pre.repo_name, '/')[0] AS repo_owner
+                        FROM
+                            ggazers.silver.fact_pull_request_events pre
+                        WHERE
+                            pre.created_at >= DATE('{period_start_date}') AND
+                            pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                    ) activity
+                    GROUP BY
+                        repo_owner
+                ),
+                most_active_member AS (
+                    SELECT
+                        repo_owner,
+                        actor_login,
+                        activity_count
+                    FROM (
+                        SELECT
+                            repo_owner,
+                            actor_login,
+                            COUNT(*) AS activity_count,
+                            ROW_NUMBER() OVER (PARTITION BY repo_owner ORDER BY COUNT(*) DESC) AS rn
+                        FROM
+                            (
+                                SELECT
+                                    split(pe.repo_name, '/')[0] AS repo_owner,
+                                    pe.actor_login
+                                FROM
+                                    ggazers.silver.fact_push_events pe
+                                WHERE
+                                    pe.created_at >= DATE('{period_start_date}') AND
+                                    pe.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                                UNION ALL
+                                SELECT
+                                    split(pre.repo_name, '/')[0] AS repo_owner,
+                                    pre.actor_login
+                                FROM
+                                    ggazers.silver.fact_pull_request_events pre
+                                WHERE
+                                    pre.created_at >= DATE('{period_start_date}') AND
+                                    pre.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                            ) activity
+                        WHERE
+                            LOWER(actor_login) NOT LIKE '%actions%' AND
+                            LOWER(actor_login) NOT LIKE '%[bot]%' AND
+                            LOWER(actor_login) NOT LIKE '%copilot%' AND
+                            LOWER(actor_login) NOT LIKE '%dependabot%' AND
+                            LOWER(actor_login) NOT LIKE '%renovate%' AND
+                            LOWER(actor_login) NOT LIKE '%bot' AND
+                            LOWER(actor_login) NOT LIKE '%gitbox%'
+
+                        GROUP BY
+                            repo_owner, actor_login
+                    ) ranked
+                    WHERE
+                        rn = 1
+                ),
+                issues_stats AS (
+                    SELECT
+                        repo_owner,
+                        opened_issues_count,
+                        closed_issues_count,
+                        CASE
+                            WHEN opened_issues_count = 0 THEN 0
+                            ELSE closed_issues_count / opened_issues_count
+                        END AS git_issues_rate
+                    FROM (
+                        SELECT
+                            split(ie.repo_name, '/')[0] AS repo_owner,
+                            SUM(
+                                CASE
+                                    WHEN ie.action = 'opened' THEN 1
+                                    ELSE 0
+                                END
+                            ) AS opened_issues_count,
+                            SUM(
+                                CASE
+                                    WHEN ie.action = 'closed' THEN 1
+                                    ELSE 0
+                                END
+                            ) AS closed_issues_count
+                        FROM
+                            ggazers.silver.fact_issue_events ie
+                        WHERE
+                            ie.action IN ('opened', 'closed') AND
+                            ie.created_at >= DATE('{period_start_date}') AND
+                            ie.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
+                        GROUP BY
+                            split(ie.repo_name, '/')[0]
+                    )
                 ),
                 new_stargazers_num AS (
                     SELECT
@@ -790,7 +1128,8 @@ class Analyzer:
                     FROM
                         ggazers.silver.fact_watch_events se
                     WHERE
-                        se.created_at BETWEEN DATE('{period_start_date}') AND DATE('{period_end_date}')
+                        se.created_at >= DATE('{period_start_date}') AND
+                        se.created_at < DATE_ADD(DATE('{period_end_date}'), 1)
                     GROUP BY
                         split(se.repo_name, '/')[0]
                 ),
@@ -798,18 +1137,29 @@ class Analyzer:
                     SELECT
                         oi.login AS org_login,
                         ROUND(
-                            (COALESCE(mar.activity_count, 0) * 5) +
-                            (COALESCE(cn.commit_count, 0) * 3) +
-                            (COALESCE(mam.activity_count, 0) * 4) +
-                            (COALESCE(nsn.new_stargazers_count, 0) * 2) +
-                            (COALESCE(oi.total_repos_count, 0) * 1)
+                            (COALESCE(crcn.committed_repos_count, 0) * 3) +
+                            (COALESCE(crcn.committers_count, 0) * 13) +
+                            (COALESCE(nsn.new_stargazers_count, 0) * 20) +
+                            (COALESCE(iss.git_issues_rate, 0) * 20) +
+                            (
+                                CASE
+                                    WHEN COALESCE(tan.total_actions_count, 0) = 0 THEN 0.0
+                                    ELSE (
+                                        COALESCE(aan.automated_actions_count, 0) / tan.total_actions_count
+                                    ) * 5
+                                END
+                            )
                         , 2) AS ggazers_score
                     FROM
                         org_info oi
                     LEFT JOIN mosts_active_repo mar ON oi.login = mar.repo_owner
                     LEFT JOIN commits_num cn ON oi.login = cn.repo_owner
-                    LEFT JOIN most_active_member mam ON oi.login = mam.actor_login
+                    LEFT JOIN committed_repos_and_committers_num crcn ON oi.login = crcn.repo_owner
+                    LEFT JOIN most_active_member mam ON oi.login = mam.repo_owner
+                    LEFT JOIN automated_actions_num aan ON oi.login = aan.repo_owner
+                    LEFT JOIN total_actions_num tan ON oi.login = tan.repo_owner
                     LEFT JOIN new_stargazers_num nsn ON oi.login = nsn.repo_owner
+                    LEFT JOIN issues_stats iss ON oi.login = iss.repo_owner
                 ),
                 ggazer_rankings AS (
                     SELECT
@@ -833,8 +1183,24 @@ class Analyzer:
                     COALESCE(mar.repo_name, 'N/A') AS most_active_repo,
                     COALESCE(mar.activity_count, 0) AS most_active_repo_activity_count,
                     COALESCE(cn.commit_count, 0) AS commits_count,
+                    COALESCE(crcn.committed_repos_count, 0) AS committed_repos_count,
+                    GREATEST(
+                        COALESCE(oi.total_repos_count, 0) - COALESCE(crcn.committed_repos_count, 0), 0
+                    ) AS repos_without_commits_count,
+                    COALESCE(crcn.committers_count, 0) AS committers_count,
+                    COALESCE(aen.actions_events_count, 0) AS actions_events_count,
+                    COALESCE(copen.copilot_events_count, 0) AS copilot_events_count,
+                    COALESCE(tan.total_actions_count, 0) AS actions_count,
+                    COALESCE(aan.automated_actions_count, 0) AS automated_actions_count,
+                    CASE
+                        WHEN COALESCE(tan.total_actions_count, 0) = 0 THEN 0.0
+                        ELSE COALESCE(aan.automated_actions_count, 0) / tan.total_actions_count
+                    END AS automated_actions_rate,
                     COALESCE(mam.actor_login, 'N/A') AS most_active_member,
                     COALESCE(mam.activity_count, 0) AS most_active_member_activity_count,
+                    COALESCE(iss.opened_issues_count, 0) AS opened_issues_count,
+                    COALESCE(iss.closed_issues_count, 0) AS closed_issues_count,
+                    COALESCE(iss.git_issues_rate, 0.0) AS git_issues_rate,
                     COALESCE(nsn.new_stargazers_count, 0) AS new_stargazers_count,
                     COALESCE(gs.ggazers_score, 0.0) AS ggazers_score,
                     COALESCE(gr.activity_label, 'Inactive') AS activity_label,
@@ -850,9 +1216,33 @@ class Analyzer:
                 ON
                     oi.login = cn.repo_owner
                 LEFT JOIN
+                    committed_repos_and_committers_num crcn
+                ON
+                    oi.login = crcn.repo_owner
+                LEFT JOIN
+                    actions_events_num aen
+                ON
+                    oi.login = aen.repo_owner
+                LEFT JOIN
+                    copilot_events_num copen
+                ON
+                    oi.login = copen.repo_owner
+                LEFT JOIN
+                    automated_actions_num aan
+                ON
+                    oi.login = aan.repo_owner
+                LEFT JOIN
+                    total_actions_num tan
+                ON
+                    oi.login = tan.repo_owner
+                LEFT JOIN
                     most_active_member mam
                 ON
-                    oi.login = mam.actor_login
+                    oi.login = mam.repo_owner
+                LEFT JOIN
+                    issues_stats iss
+                ON
+                    oi.login = iss.repo_owner
                 LEFT JOIN
                     new_stargazers_num nsn
                 ON
